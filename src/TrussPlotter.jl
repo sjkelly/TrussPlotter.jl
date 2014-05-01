@@ -2,7 +2,6 @@ module TrussPlotter
 
 using PyPlot;
 
-
 function plot_undeformed(xn,f,Idb,Ucomp,Rcomp,ien,nel,nen,nsd,ndf,nnp,axial)
     display_factor = 0.1;
     eps = 1e-4;
@@ -25,7 +24,7 @@ function plot_undeformed(xn,f,Idb,Ucomp,Rcomp,ien,nel,nen,nsd,ndf,nnp,axial)
     plot_mesh_undeformed(nel,ien,xn,nnp,nsd);
     numbers(nel,ien,xn,nnp,nsd);
     plot_bc_displacements(Lcar,display_factor,nnp,Idb,xn,nsd);
-    #plot_bc_force(Lcar,f,display_factor,nnp,xn,nsd);
+    plot_bc_force(Lcar,f,display_factor,nnp,xn,nsd);
 end
 
 #function plot_results(type,xn,f,Idb,Ucomp,Rcomp,ien,nel,nen,nsd,ndf,nnp,axial)
@@ -435,40 +434,31 @@ function plot_bc_displacements(Lcar,display_factor,nnp,Idb,xn,nsd)
 end;
 
 
-#################################
-## boundary conditions on force #
-#################################
-#function plot_bc_force(type,Lcar,f,display_factor,nnp,xn,nsd)
-#delta=display_factor*Lcar/max(max(abs(f))); # scale factor for force b.c.
-#alpha=2*display_factor*Lcar; # scale factor for moment
-#for N=1:nnp
-#    if ( nsd == 3)
-#        if ( (f(1,N) ~= 0 ) || (f(2,N) ~= 0) || (f(3,N) ~= 0))
-#            quiver3(xn(1,N),xn(2,N),xn(3,N),f(1,N),f(2,N),f(3,N),delta,'r','LineWidth',2);
-#        end;
-#    end
-#    if ( nsd == 2)
-#        if ( (f(1,N) ~= 0 ) || (f(2,N) ~= 0))
-#            quiver(xn(1,N),xn(2,N),f(1,N),f(2,N),delta,'r');
-#        end;
-#    end
-#    if ( nsd == 1) 
-#        if (f(1,N) ~=0)
-#            quiver(xn(1,N),0,f(1,N),0,delta,'r');
-#        end;
-#    end;
-#end;
+################################
+# boundary conditions on force #
+################################
+function plot_bc_force(Lcar,f,display_factor,nnp,xn,nsd)
+    delta=display_factor*Lcar/maximum(maximum(abs(f))); # scale factor for force b.c.
+    alpha=2*display_factor*Lcar; # scale factor for moment
+    for N=1:nnp
+        if ( nsd == 3)
+            if ( (f[1,N] != 0 ) || (f[2,N] != 0) || (f[3,N] != 0))
+                #quiver3(xn(1,N),xn(2,N),xn(3,N),f(1,N),f(2,N),f(3,N),delta,'r','LineWidth',2);
+            end;
+        end
+        if ( nsd == 2)
+            if ( (f[1,N] != 0 ) || (f[2,N] != 0))
+                quiver(xn[1,N],xn[2,N],f[1,N],f[2,N],delta,color="Red");
+            end;
+        end
+        if ( nsd == 1)
+            if (f[1,N] !=0)
+                quiver(xn[1,N],0,f[1,N],0,delta,color="Red");
+            end;
+        end;
+    end;
+end
 
-#if (strcmp(type, 'beam'))
-#    for N=1:nnp
-#        if (f(3,N) > eps)
-#            plot_moments([xn(1,N);xn(2,N)],alpha,0);
-#        end;
-#        if (f(3,N) < -eps)
-#            plot_moments([xn(1,N);xn(2,N)],alpha,1);
-#        end;
-#    end;
-#end;
 
 
 ##############
@@ -585,38 +575,5 @@ function bc_symbols(xp,alpha,symbol,nsd)
         end;
     end
 end;
-
-
-
-###############################################################################################
-##                                       MOMENTS                                              #
-###############################################################################################
-#function plot_moments(xp,alpha,sign)
-#switch sign
-#    case 0  #positive moment
-#        r=alpha/4;
-#        theta=0:0.1:3*pi/2;
-#        x=r*cos(theta)+xp(1);
-#        y=r*sin(theta)+xp(2);
-#        
-#        plot(x,y,'k','LineWidth',1.2);
-#        line([xp(1), xp(1)-alpha/8],[xp(2)-alpha/4, xp(2)-alpha/8],...
-#            'Color','k','LineWidth',1.2);
-#        line([xp(1), xp(1)-alpha/8],[xp(2)-alpha/4, xp(2)-3*alpha/8],...
-#            'Color','k','LineWidth',1.2);
-#        
-#    case 1  # negative moment
-#        r=alpha/4;
-#        theta=pi:-0.1:-pi/2;
-#        x=r*cos(theta)+xp(1);
-#        y=r*sin(theta)+xp(2);
-#        
-#        plot(x,y,'k','LineWidth',1.2);
-#        line([xp(1), xp(1)+alpha/8],[xp(2)-alpha/4, xp(2)-alpha/8],...
-#            'Color','k','LineWidth',1.2);
-#        line([xp(1), xp(1)+alpha/8],[xp(2)-alpha/4, xp(2)-3*alpha/8],...
-#            'Color','k','LineWidth',1.2);
-#end;
-
 
 end # module
