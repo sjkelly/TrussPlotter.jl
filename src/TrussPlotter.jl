@@ -24,10 +24,8 @@ function plot_undeformed(xn,f,Idb,Ucomp,Rcomp,ien,nel,nen,nsd,ndf,nnp,axial)
     title("Undeformed mesh and BCs");
     plot_mesh_undeformed(nel,ien,xn,nnp,nsd);
     numbers(nel,ien,xn,nnp,nsd);
-    #plot_bc_displacements(type,Lcar,display_factor,nnp,Idb,xn,nsd);
-    #plot_bc_force(type,Lcar,f,display_factor,nnp,xn,nsd);
-    #view(nsd);
-    #hold off;
+    plot_bc_displacements(Lcar,display_factor,nnp,Idb,xn,nsd);
+    #plot_bc_force(Lcar,f,display_factor,nnp,xn,nsd);
 end
 
 #function plot_results(type,xn,f,Idb,Ucomp,Rcomp,ien,nel,nen,nsd,ndf,nnp,axial)
@@ -415,26 +413,26 @@ end
 ########################################
 # boundary conditions on displacements #
 ########################################
-#function plot_bc_displacements(type,Lcar,display_factor,nnp,Idb,xn,nsd)
-#    alpha=display_factor*Lcar; # scale factor  for bc symbols
-#    for P=1:nnp
-#        if (nsd >1)
-#            if ((Idb(1,P) ~= 0) && (Idb(2,P) ~= 0))
-#                bc_symbols(xn(:,P),alpha,3,nsd);
-#            end;
-#            if ((Idb(1,P) ~= 0) && (Idb(2,P) == 0))
-#                bc_symbols(xn(:,P),alpha,2,nsd);
-#            end;
-#            if ((Idb(1,P) == 0) && (Idb(2,P) ~= 0))
-#                bc_symbols(xn(:,P),alpha,1,nsd);
-#            end;
-#        else
-#            if (Idb(1,P) ~= 0)
-#                bc_symbols([xn(1,P),0],alpha,2,nsd);
-#            end;
-#        end;
-#    end;
-#end;
+function plot_bc_displacements(Lcar,display_factor,nnp,Idb,xn,nsd)
+    alpha=display_factor*Lcar; # scale factor  for bc symbols
+    for P=1:nnp
+        if (nsd >1)
+            if ((Idb[1,P] != 0) && (Idb[2,P] != 0))
+                bc_symbols(xn[:,P],alpha,3,nsd);
+            end;
+            if ((Idb[1,P] != 0) && (Idb[2,P] == 0))
+                bc_symbols(xn[:,P],alpha,2,nsd);
+            end;
+            if ((Idb[1,P] == 0) && (Idb[2,P] != 0))
+                bc_symbols(xn[:,P],alpha,1,nsd);
+            end;
+        else
+            if (Idb[1,P] != 0)
+                bc_symbols([xn[1,P],0],alpha,2,nsd);
+            end;
+        end;
+    end;
+end;
 
 
 #################################
@@ -509,85 +507,83 @@ end
 #    end;
 #end
 
-###############################################################################################
-##                              BOUNDARY CONDITIONS SYMBOLS                                   #
-###############################################################################################
-#function bc_symbols(xp,alpha,symbol,nsd)
-#if (nsd < 3)
-#    switch symbol
-#        case 1
-#            # v fixed
-#            x=[xp(1);xp(1)-alpha/2;xp(1)+alpha/2;xp(1)];
-#            y=[xp(2);xp(2)-(3/4)*alpha;xp(2)-(3/4)*alpha;xp(2)];
-
-#            line(x,y,'Color','k','LineWidth',1.2);
-
-#            for i=0:3,
-#                circle([xp(1)-(3/8)*alpha+i*alpha/4; xp(2)-(7/8)*alpha],alpha/8);
-#            end;
-
-
-#        case 2
-#            # u fixed
-#            x=[xp(1);xp(1)-(3/4)*alpha;xp(1)-(3/4)*alpha;xp(1)];
-#            y=[xp(2);xp(2)+(1/2)*alpha;xp(2)-(1/2)*alpha;xp(2)];
-
-#            line(x,y,'Color','k','LineWidth',1.2);
-
-#            for i=0:3,
-#                circle([xp(1)-(7/8)*alpha;xp(2)-(3/8)*alpha+i*alpha/4],alpha/8);
-#            end;
-
-#        case 3
-#            # u and v fixed
-#            x=[xp(1);xp(1)-alpha/2;xp(1)+alpha/2;xp(1)];
-#            y=[xp(2);xp(2)-(3/4)*alpha;xp(2)-(3/4)*alpha;xp(2)];
-
-#            line(x,y,'Color','k','LineWidth',1.2);
-
-#            for i=0:3,
-#                line([xp(1)-(alpha/4)+i*alpha/4;xp(1)-(alpha/2)+i*(alpha/4)], ...
-#                    [xp(2)-(3/4)*alpha;xp(2)-alpha],'Color','k','LineWidth',1.2);
-#            end;
-
-#        case 4
-#            # v and theta fixed
-#            x=[xp(1)-alpha/2;xp(1)+alpha/2];
-#            y=[xp(2);xp(2)];
-
-#            line(x,y,'Color','k','LineWidth',1.2);
-
-#            for i=0:3,
-#                circle([xp(1)-(3/8)*alpha+i*alpha/4; xp(2)-(1/8)*alpha],alpha/8);
-#            end;
-
-#        case 5
-#            # u and theta fixed
-#            x=[xp(1);xp(1)];
-#            y=[xp(2)+(1/2)*alpha;xp(2)-(1/2)*alpha];
-
-#            line(x,y,'Color','k','LineWidth',1.2);
-
-#            for i=0:3,
-#                circle([xp(1)-(1/8)*alpha;xp(2)-(3/8)*alpha+i*alpha/4],alpha/8);
-#            end;
-
-#        case 6
-#            # u, v and theta fixed
-#            line([xp(1)-alpha/2;xp(1)+alpha/2],[xp(2),xp(2)],'Color','k','LineWidth',1.2);
-#            for i=0:3,
-#                line([xp(1)-alpha/2+(i+1)*alpha/4, xp(1)-alpha/2+i*alpha/4],[xp(2),xp(2)-alpha/4]...
-#                    ,'Color','k','LineWidth',1.2);
-#            end;
-#    end
-#end
-
+##############################################################################################
+#                              BOUNDARY CONDITIONS SYMBOLS                                   #
+##############################################################################################
 function circle(x0,r)
     theta=0:0.1:2*pi;
-    x=r*cos(theta)+x0(1);
-    y=r*sin(theta)+x0(2);
+    x=r*cos(theta).+x0[1];
+    y=r*sin(theta).+x0[2];
 
     plot(x,y,color="Black",linewidth=1.2);
+end;
+
+function bc_symbols(xp,alpha,symbol,nsd)
+    if symbol== 1
+        # v fixed
+        x=[xp[1];xp[1]-alpha/2;xp[1]+alpha/2;xp[1]];
+        y=[xp[2];xp[2]-(3/4)*alpha;xp[2]-(3/4)*alpha;xp[2]];
+
+        plot(x,y,color="Black",linewidth=1.2);
+
+        for i=0:3
+            circle([xp[1]-(3/8)*alpha+i*alpha/4; xp[2]-(7/8)*alpha],alpha/8);
+        end;
+
+
+    elseif symbol == 2
+        # u fixed
+        x=[xp[1];xp[1]-(3/4)*alpha;xp[1]-(3/4)*alpha;xp[1]];
+        y=[xp[2];xp[2]+(1/2)*alpha;xp[2]-(1/2)*alpha;xp[2]];
+
+        plot(x,y,color="Black",linewidth=1.2);
+
+        for i=0:3
+            circle([xp[1]-(7/8)*alpha;xp[2]-(3/8)*alpha+i*alpha/4],alpha/8);
+        end;
+
+    elseif symbol == 3
+        # u and v fixed
+        x=[xp[1];xp[1]-alpha/2;xp[1]+alpha/2;xp[1]];
+        y=[xp[2];xp[2]-(3/4)*alpha;xp[2]-(3/4)*alpha;xp[2]];
+
+        plot(x,y,color="Black",linewidth=1.2);
+
+        for i=0:3
+            plot([xp[1]-(alpha/4)+i*alpha/4;xp[1]-(alpha/2)+i*(alpha/4)], 
+                 [xp[2]-(3/4)*alpha;xp[2]-alpha],color="Black",linewidth=1.2);
+        end;
+
+    elseif symbol == 4
+        # v and theta fixed
+        x=[xp[1]-alpha/2;xp[1]+alpha/2];
+        y=[xp[2];xp[2]];
+
+        plot(x,y,color="Black",linewidth=1.2);
+
+        for i=0:3
+            circle([xp[1]-(3/8)*alpha+i*alpha/4; xp[2]-(1/8)*alpha],alpha/8);
+        end;
+
+    elseif symbol == 5
+        # u and theta fixed
+        x=[xp[1];xp[1]];
+        y=[xp[2]+(1/2)*alpha;xp[2]-(1/2)*alpha];
+
+        plot(x,y,color="Black",linewidth=1.2);
+
+        for i=0:3
+            circle([xp[1]-(1/8)*alpha;xp[2]-(3/8)*alpha+i*alpha/4],alpha/8);
+        end;
+
+    elseif symbol == 6
+        # u, v and theta fixed
+        plot([xp[1]-alpha/2;xp[1]+alpha/2],[xp[2],xp[2]], color="Black", linewidth=1.2);
+        for i=0:3
+            plot([xp[1]-alpha/2+(i+1)*alpha/4, xp[1]-alpha/2+i*alpha/4],[xp[2],xp[2]-alpha/4]
+                ,color="Black",linewidth=1.2);
+        end;
+    end
 end;
 
 
