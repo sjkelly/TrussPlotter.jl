@@ -117,7 +117,7 @@ end;
 # numbers the nodes and elements - truss and beam #
 ###################################################
 function numbers(nel,ien,xn,nnp,nsd)
-    fontsize = 12;
+    fontsize = 10;
     # number the nodes in the undeformed configuration
     for n=1:nnp
         if (nsd == 3)
@@ -183,12 +183,12 @@ function plot_mesh_deformed(xn,Ucomp,Idb,display_factor,Lcar,nel,ien,ndf,nsd,nen
         end;
         if nsd < 3
             if (axial[2,elt] > 0.0)
-               h[1] = plot(xt[1,:]',xt[2,:]', color="Red", marker=".");
+               ten = plot(xt[1,:]',xt[2,:]', color="Red", marker=".", label="Tension");
                if legend_ten_flag == 0
                    legend_ten_flag = 1;
                end
             else
-               h[2] = plot(xt[1,:]',xt[2,:]', color="Blue", marker=".");
+               comp = plot(xt[1,:]',xt[2,:]', color="Blue", marker=".", label="Compression");
                if legend_comp_flag == 0
                    legend_comp_flag = 1;
                end
@@ -196,25 +196,19 @@ function plot_mesh_deformed(xn,Ucomp,Idb,display_factor,Lcar,nel,ien,ndf,nsd,nen
         end
         if nsd == 3
             if (axial[2,elt] > 0.0)
-               h[1] = plot(xt[1,:]',xt[2,:]',xt[3,:]', color="Red", marker=".");
+               plot(xt[1,:]',xt[2,:]',xt[3,:]', color="Red", marker=".");
                if legend_ten_flag == 0
                    legend_ten_flag = 1;
                end
             else
-               h[2] = plot(xt[1,:]',xt[2,:]',xt[3,:]', color="Blue", marker=".");
+               plot(xt[1,:]',xt[2,:]',xt[3,:]', color="Blue", marker=".");
                if legend_comp_flag == 0
                    legend_comp_flag = 1;
                end
             end
         end
     end
-    if legend_comp_flag == 1 && legend_ten_flag == 1
-        legend(h,["Tension", "Compression"])
-    elseif legend_comp_flag == 1
-        legend([h[2]],["Compression"])
-    elseif legend_ten_flag == 1
-        legend([h[1]],["Tension"])
-    end
+    #legend(numpoints=2);
 end;
 
 ########################################
