@@ -27,34 +27,30 @@ function plot_undeformed(xn,f,Idb,Ucomp,Rcomp,ien,nel,nen,nsd,ndf,nnp,axial)
     plot_bc_force(Lcar,f,display_factor,nnp,xn,nsd);
 end
 
-#function plot_results(type,xn,f,Idb,Ucomp,Rcomp,ien,nel,nen,nsd,ndf,nnp,axial)
-#    display_factor=0.1;
-#    eps=1e-4;
+function plot_deformed(xn,f,Idb,Ucomp,Rcomp,ien,nel,nen,nsd,ndf,nnp,axial)
+    display_factor = 0.1;
+    eps = 1e-4;
 
-#    # characteristic distances
-#    xmax=max(max(xn(1,:)));
-#    xmin=min(min(xn(1,:)));
+    # characteristic distances
+    xmax=maximum(maximum(xn[1,:]));
+    xmin=minimum(minimum(xn[1,:]));
 
-#    if (nsd >1)
-#        ymax=max(max(xn(2,:)));
-#        ymin=min(min(xn(2,:)));
-#        
-#        Lcar=max([xmax-xmin;ymax-ymin]);
-#    else
-#        Lcar=xmax-xmin;
-#    end;
+    if (nsd >1)
+        ymax=maximum(maximum(xn[2,:]));
+        ymin=minimum(minimum(xn[2,:]));
+        
+        Lcar=maximum([xmax-xmin;ymax-ymin]);
+    else
+        Lcar=xmax-xmin;
+    end;
 
-#    figure;
-#    axis equal;
-#    title('Undeformed and deformed mesh');
-#    hold on;
-#    set(gcf, 'Color', [1,1,1]); #Background color white
-#    plot_mesh_undeformed(nel,ien,xn,nnp,nsd);
-#    numbers(nel,ien,xn,nnp,nsd);
-#    plot_mesh_deformed(type,xn,Ucomp,Idb,display_factor,Lcar,nel,ien,ndf,nsd,nen,axial);
-#    view(nsd);
-#    hold off;
-#end
+
+    axis("equal");
+    title("Undeformed and deformed mesh");
+    plot_mesh_undeformed(nel,ien,xn,nnp,nsd);
+    plot_mesh_deformed(xn,Ucomp,Idb,display_factor,Lcar,nel,ien,ndf,nsd,nen,axial);
+    numbers(nel,ien,xn,nnp,nsd);
+end
 
 #function plot_results(type,xn,f,Idb,Ucomp,Rcomp,ien,nel,nen,nsd,ndf,nnp,axial)
 #    display_factor=0.1;
@@ -92,9 +88,9 @@ end
 # undeformed configuration #
 ############################
 function plot_mesh_undeformed(nel,ien,xn,nnp,nsd)
-    for e=1:nel
-        node1=ien[1,e];
-        node2=ien[2,e];
+    for elt=1:nel
+        node1=ien[1,elt];
+        node2=ien[2,elt];
         if (nsd == 3)
             
         end
@@ -110,7 +106,7 @@ function plot_mesh_undeformed(nel,ien,xn,nnp,nsd)
         if nsd < 3
             plot(x0,y0, color="Black", marker=".");
         else
-            line(x0,y0,z0);
+            plot(x0,y0,z0);
         end
     end;
 end;
@@ -151,263 +147,75 @@ function numbers(nel,ien,xn,nnp,nsd)
             text(xg[1],0, s,fontsize=fontsize, color="Blue");
         end;
     end
-end
+end;
 
-###########################
-## deformed configuration #
-###########################
-#function plot_mesh_deformed(type,xn,Ucomp,Idb,display_factor,Lcar,nel,ien,ndf,nsd,nen,axial)
-
-#switch type
-#    case 'truss'
-#        scale=display_factor*Lcar/max(max(abs(Ucomp))); # scale factor for the displacements
-#        legend_comp_flag = 0;
-#        legend_ten_flag = 0;
-#        for e=1:nel
-#            node1=ien(1,e);
-#            node2=ien(2,e);
-#            xt(:,1)=xn(:,node1);
-#            xt(:,2)=xn(:,node2);
-#            
-#            if (nsd == 1)
-#                xt(2,1)=0;
-#                xt(2,2)=0;
-#            end;
-#            
-#            for i=1:ndf
-#                if Idb(i,node1)~=0
-#                    xt(i,1)=xt(i,1)+scale*Ucomp(i,node1);
-#                else
-#                    xt(i,1)=xt(i,1)+scale*Ucomp(i,node1);
-#                end;
-#                if Idb(i,node2)~=0
-#                    xt(i,2)=xt(i,2)+scale*Ucomp(i,node2);
-#                else
-#                    xt(i,2)=xt(i,2)+scale*Ucomp(i,node2);
-#                end;
-#            end;
-#            if nsd < 3
-#                plot(xt(1,:),xt(2,:)','r-o');
-#            end
-#            if nsd == 3
-#                if (axial(2,e) > 0)
-#                   h(1,1) = plot3(xt(1,:),xt(2,:),xt(3,:), 'r-o');
-#                   if legend_ten_flag == 0
-#                       legend_ten_flag = 1;
-#                   end
-#                else
-#                   h(2,1) = plot3(xt(1,:),xt(2,:),xt(3,:), 'b-o');
-#                   if legend_comp_flag == 0
-#                       legend_comp_flag = 1;
-#                   end
-#                end
-#            end
-#        end
-#        if legend_comp_flag && legend_ten_flag
-#            legend(h,'Tension', 'Compression')
-#        else
-#            if legend_comp_flag
-#                legend(h(2,1),'Compression')
-#            else
-#                if legend_ten_flag
-#                    legend(h(1,1),'Tension')
-#                end
-#            end
-#        end
-#    case 'beam'
-#        xi=-1:0.1:1;
-#        nxi=size(xi,2);
-#        
-#        Umax=0;
-#        #######################################################################################
-#        #                                   SCALE FACTOR                                      #
-#        #######################################################################################
-#        for e=1:nel
-#            node1=ien(1,e);
-#            node2=ien(2,e);
-#            if nsd == 2 
-#            # displacement + rotation
-#            Un(1,1)=Ucomp(1,node1);
-#            Un(1,2)=Ucomp(2,node1);
-#            Un(1,3)=Ucomp(3,node1);
-#            Un(2,1)=Ucomp(1,node2);
-#            Un(2,2)=Ucomp(2,node2);
-#            Un(2,3)=Ucomp(3,node2);
-#            elseif nsd ==3
-#            Un(1,1)=Ucomp(1,node1);
-#            Un(1,2)=Ucomp(2,node1);
-#            Un(1,3)=Ucomp(3,node1);
-#            Un(1,4)=Ucomp(1,node1);
-#            Un(1,5)=Ucomp(2,node1);
-#            Un(1,6)=Ucomp(3,node1);
-#            Un(2,1)=Ucomp(1,node2);
-#            Un(2,2)=Ucomp(2,node2);
-#            Un(2,3)=Ucomp(3,node2);
-#            Un(2,4)=Ucomp(1,node2);
-#            Un(2,5)=Ucomp(2,node2);
-#            Un(2,6)=Ucomp(3,node2);
-#            end
-#            
-#            # intial postion
-#            x0=zeros(nxi,nsd);
-#            for n=1:nxi
-#                x0(n,:)=((1-xi(n))/2)*xn(:,node1)'+((1+xi(n))/2)*xn(:,node2)';
-#            end
-#            
-#            Le=sqrt((xn(1,node1)-xn(1,node2))^2+(xn(2,node1)-xn(2,node2))^2);
-#            
-#            # g(i,j) - vector i coordinate j
-#            g=zeros(nsd,nsd);
-#            g(1,:)=(1/Le)*(xn(:,node2)-xn(:,node1))';
-#            
-#            g(2,1)=-g(1,2);
-#            g(2,2)=g(1,1);
-#            
-#            # to make g_3 = z - so that the rotation are the same in both systems of coordinates
-#            cross_prod=g(1,1)*g(2,2)-g(1,2)*g(2,1);
-#            if cross_prod < 0
-#                g(2,:)=-g(2,:);
-#            end;
-#            
-#            #transformation matrices
-#            beta=g;
-#            betap=inv(beta);
-#            
-#            # transform displacement coordinates in the global system
-#            un=zeros(nen,nsd);
-#            
-#            for n=1:nen
-#                for i=1:nsd
-#                    for j=1:nsd
-#                        un(n,i)=un(n,i)+Un(n,j)*betap(j,i);
-#                    end;
-#                end;
-#            end;
-#            
-#            for n=1:nen
-#                un(n,3)=Un(n,3);
-#            end;
-#            
-#            # transverse displacement in the local system of coordinates
-#            for i=1:nxi
-#                N1(i)=(1/4)*(1-xi(i))^2*(2+xi(i));
-#                N2(i)=(Le/8)*(1-xi(i)^2)*(1-xi(i));
-#                N3(i)=(1/4)*(1+xi(i))^2*(2-xi(i));
-#                N4(i)=(Le/8)*(-1+xi(i)^2)*(1+xi(i));
-#                u(i,2)=N1(i)*un(1,2)+N2(i)*un(1,3)+N3(i)*un(2,2)+N4(i)*un(2,3);
-#            end;
-#            
-#            # horizontal displacement in the local system of coordinates
-#            for i=1:nxi
-#                u(i,1)=(1/2)*((1-xi(i))*un(1,1)+(1+xi(i))*un(2,1));
-#            end;
-#            
-#            # transform from local to global system
-#            U=zeros(nxi,nsd);
-#            for i=1:nsd
-#                for n=1:nxi
-#                    for j=1:nsd
-#                        U(n,i)=U(n,i)+u(n,j)*beta(j,i);
-#                    end;
-#                end;
-#            end;
-#            
-#            # scale factor
-#            if (max(max(abs(U)))>Umax)
-#                Umax=max(max(abs(U)));
-#            end;
-#        end;
-#        
-#        scale=display_factor*Lcar/Umax;
-#        
-#        #######################################################################################
-#        #                                       PLOT                                          #
-#        #######################################################################################
-#        for e=1:nel
-#            node1=ien(1,e);
-#            node2=ien(2,e);
-#            
-#            # displacement + rotation
-#            Un(1,1)=Ucomp(1,node1);
-#            Un(1,2)=Ucomp(2,node1);
-#            Un(1,3)=Ucomp(3,node1);
-#            Un(2,1)=Ucomp(1,node2);
-#            Un(2,2)=Ucomp(2,node2);
-#            Un(2,3)=Ucomp(3,node2);
-#            
-#            # intial postion
-#            x0=zeros(nxi,nsd);
-#            for n=1:nxi
-#                x0(n,:)=((1-xi(n))/2)*xn(:,node1)'+((1+xi(n))/2)*xn(:,node2)';
-#            end
-#            
-#            Le=sqrt((xn(1,node1)-xn(1,node2))^2+(xn(2,node1)-xn(2,node2))^2);
-#            
-#            # g(i,j) - vector i coordinate j
-#            g=zeros(nsd,nsd);
-#            g(1,:)=(1/Le)*(xn(:,node2)-xn(:,node1))';
-#            
-#            g(2,1)=-g(1,2);
-#            g(2,2)=g(1,1);
-#            
-#            # to make g_3 = z - so that the rotation are the same in both systems of coordinates
-#            cross_prod=g(1,1)*g(2,2)-g(1,2)*g(2,1);
-#            if cross_prod < 0
-#                g(2,:)=-g(2,:);
-#            end;
-#            
-#            #transformation matrices
-#            beta=g;
-#            betap=inv(beta);
-#            
-#            # transform displacement coordinates in the global system
-#            un=zeros(nen,nsd);
-#            
-#            for n=1:nen
-#                for i=1:nsd
-#                    for j=1:nsd
-#                        un(n,i)=un(n,i)+Un(n,j)*betap(j,i);
-#                    end;
-#                end;
-#            end;
-#            
-#            for n=1:nen
-#                un(n,3)=Un(n,3);
-#            end;
-#            
-#            # transverse displacement in the local system of coordinates
-#            for i=1:nxi
-#                N1(i)=(1/4)*(1-xi(i))^2*(2+xi(i));
-#                N2(i)=(Le/8)*(1-xi(i)^2)*(1-xi(i));
-#                N3(i)=(1/4)*(1+xi(i))^2*(2-xi(i));
-#                N4(i)=(Le/8)*(-1+xi(i)^2)*(1+xi(i));
-#                u(i,2)=N1(i)*un(1,2)+N2(i)*un(1,3)+N3(i)*un(2,2)+N4(i)*un(2,3);
-#            end;
-#            
-#            # horizontal displacement in the local system of coordinates
-#            for i=1:nxi
-#                u(i,1)=(1/2)*((1-xi(i))*un(1,1)+(1+xi(i))*un(2,1));
-#            end;
-#            
-#            # transform from local to global system
-#            U=zeros(nxi,nsd);
-#            for i=1:nsd
-#                for n=1:nxi
-#                    for j=1:nsd
-#                        U(n,i)=U(n,i)+u(n,j)*beta(j,i);
-#                    end;
-#                end;
-#            end;
-#            
-#            # deformed configuration in the global system
-#            xt=x0+scale*U;
-#            
-#            plot(xt(:,1),xt(:,2),'b-');
-#        end;
-#        
-#    otherwise
-#        disp('type not supported by plot_results');
-#end
+##########################
+# deformed configuration #
+##########################
+function plot_mesh_deformed(xn,Ucomp,Idb,display_factor,Lcar,nel,ien,ndf,nsd,nen,axial)
+    scale=display_factor*Lcar/maximum(maximum(abs(Ucomp))); # scale factor for the displacements
+    legend_comp_flag = 0;
+    legend_ten_flag = 0;
+    h = cell(2);
+    xt = zeros(ndf,2);
+    for elt = 1:nel
+        node1 = ien[1,elt];
+        node2 = ien[2,elt];
+        xt[:,1]=xn[:,node1];
+        xt[:,2]=xn[:,node2];
+        
+        if (nsd == 1)
+            xt[2,1]=0;
+            xt[2,2]=0;
+        end;
+        
+        for i = 1:ndf
+            if Idb[i,node1] != 0
+                xt[i,1] = xt[i,1] + scale*Ucomp[i,node1];
+            else
+                xt[i,1] = xt[i,1] + scale*Ucomp[i,node1];
+            end;
+            if Idb[i,node2] != 0
+                xt[i,2] = xt[i,2] + scale*Ucomp[i,node2];
+            else
+                xt[i,2] = xt[i,2] + scale*Ucomp[i,node2];
+            end;
+        end;
+        if nsd < 3
+            if (axial[2,elt] > 0.0)
+               h[1] = plot(xt[1,:]',xt[2,:]', color="Red", marker=".");
+               if legend_ten_flag == 0
+                   legend_ten_flag = 1;
+               end
+            else
+               h[2] = plot(xt[1,:]',xt[2,:]', color="Blue", marker=".");
+               if legend_comp_flag == 0
+                   legend_comp_flag = 1;
+               end
+            end
+        end
+        if nsd == 3
+            if (axial[2,elt] > 0.0)
+               h[1] = plot(xt[1,:]',xt[2,:]',xt[3,:]', color="Red", marker=".");
+               if legend_ten_flag == 0
+                   legend_ten_flag = 1;
+               end
+            else
+               h[2] = plot(xt[1,:]',xt[2,:]',xt[3,:]', color="Blue", marker=".");
+               if legend_comp_flag == 0
+                   legend_comp_flag = 1;
+               end
+            end
+        end
+    end
+    if legend_comp_flag == 1 && legend_ten_flag == 1
+        legend(h,["Tension", "Compression"])
+    elseif legend_comp_flag == 1
+        legend([h[2]],["Compression"])
+    elseif legend_ten_flag == 1
+        legend([h[1]],["Tension"])
+    end
+end;
 
 ########################################
 # boundary conditions on displacements #
